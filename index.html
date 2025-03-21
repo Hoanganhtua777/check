@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu giao dịch TON - Treeng</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            color: #333;
+        }
+        h1 {
+            font-size: 28px;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        .transaction {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .transaction span {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .loading {
+            color: #28a745;
+            font-style: italic;
+            font-size: 18px;
+        }
+        .footer {
+            position: fixed;
+            bottom: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .transaction {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tra cứu giao dịch TON</h1>
+        <div id="result"></div>
+    </div>
+    <div class="footer">©Treeng</div>
+
+    <script>
+        const API_KEY = "b6726dd60c0c9d7beae31bafd11b1483133c9515faae94af815e5594963744e9";
+        const resultDiv = document.getElementById("result");
+
+        async function fetchTransaction() {
+            resultDiv.innerHTML = "<p class='loading'>Đang kiểm tra giao dịch...</p>";
+
+            // Lấy tham số từ URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const wallet = urlParams.get("wallet");
+            const amountToCheck = parseFloat(urlParams.get("amount"));
+
+            if (!wallet || isNaN(amountToCheck)) {
+                resultDiv.innerHTML = `
+                    <p class='error'>404 - Dữ liệu không hợp lệ!</p>
+                `;
+                return;
+            }
+
+            try {
+                const url = `https://toncenter.com/api/v2/getTransactions?address=${wallet}&limit=10&api_key=${API_KEY}`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.result || data.result.length === 0) {
+                    resultDiv.innerHTML = `
+                        <p class='error'>404 - Không tìm thấy giao dịch nào!</p>
+                    `;
+                    return;
+                }
+
+                // Lọc giao dịch chuyển vào ví với số TON khớp
+                const matchingTx = data.result.find(tx => {
+                    const amount = parseInt(tx.in_msg.value) / 10**9;
+                    return tx.in_msg.destination === wallet && amount === amountToCheck;
+                });
+
+                if (!matchingTx) {
+                    resultDiv.innerHTML = `
+                        <p class='error'>404 - Không tìm thấy giao dịch ${amountToCheck} TON!</p>
+                    `;
+                    return;
+                }
+
+                // Định dạng giao dịch
+                const txData = {
+                    TxID: matchingTx.transaction_id.hash.slice(0, 8) + "...",
+                    Amount: (parseInt(matchingTx.in_msg.value) / 10**9).toFixed(6) + " TON",
+                    Sender: matchingTx.in_msg.source.slice(0, 8) + "...",
+                    Memo: matchingTx.in_msg.message || "Không có",
+                    Time: new Date(matchingTx.utime * 1000).toLocaleString("vi-VN")
+                };
+
+                resultDiv.innerHTML = `
+                    <div class='transaction'>
+                        <p><span>TxID:</span> ${txData.TxID}</p>
+                        <p><span>Số TON:</span> ${txData.Amount}</p>
+                        <p><span>Người gửi:</span> ${txData.Sender}</p>
+                        <p><span>Ghi chú:</span> ${txData.Memo}</p>
+                        <p><span>Thời gian:</span> ${txData.Time}</p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class='error'>404 - Lỗi: ${error.message}</p>
+                `;
+                console.error("Fetch error:", error);
+            }
+        }
+
+        // Tự động chạy khi tải trang
+        window.onload = fetchTransaction;
+
+        // Tích hợp Telegram Web App
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+    </script>
+</body>
+</html>
