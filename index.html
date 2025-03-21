@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra cứu giao dịch TON - Treeng Premium</title>
+    <title>Lịch sử P2P TON - Treeng Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -28,7 +28,7 @@
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            max-width: 700px;
+            max-width: 800px;
             width: 90%;
             text-align: center;
             position: relative;
@@ -64,31 +64,52 @@
             box-shadow: 0 0 10px #00c6ff;
         }
 
-        .transaction-box {
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
             background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
             padding: 20px;
             border-radius: 15px;
-            text-align: left;
             margin-top: 30px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             animation: slideIn 0.8s ease-out;
-            border-left: 5px solid #00c6ff;
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .transaction-box p {
-            font-size: 18px;
+        .transaction-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .transaction-list::-webkit-scrollbar-thumb {
+            background: #00c6ff;
+            border-radius: 4px;
+        }
+        .transaction-list::-webkit-scrollbar-track {
+            background: #e9ecef;
+        }
+
+        .transaction-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .transaction-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 198, 255, 0.5);
+        }
+        .transaction-item p {
+            font-size: 16px;
             color: #333;
-            margin: 10px 0;
+            margin: 5px 0;
             display: flex;
             justify-content: space-between;
-            transition: background 0.3s ease;
         }
-        .transaction-box p:hover { background: rgba(0, 198, 255, 0.1); padding-left: 10px; border-radius: 5px; }
-        .transaction-box span.label { font-weight: 700; color: #00c6ff; text-transform: uppercase; flex: 1; }
-        .transaction-box span.value { font-weight: 500; color: #555; flex: 2; text-align: right; }
+        .transaction-item span.label { font-weight: 700; color: #00c6ff; text-transform: uppercase; }
+        .transaction-item span.value { font-weight: 500; color: #555; }
 
         .error {
             font-size: 30px;
@@ -159,7 +180,6 @@
             box-shadow: 0 8px 20px rgba(0, 198, 255, 0.8);
         }
 
-        /* Particle Background */
         #particles-js {
             position: absolute;
             width: 100%;
@@ -172,8 +192,8 @@
         @media (max-width: 600px) {
             .container { padding: 25px; width: 95%; }
             h1 { font-size: 30px; }
-            .transaction-box p { font-size: 16px; flex-direction: column; text-align: left; }
-            .transaction-box span.label, .transaction-box span.value { flex: none; text-align: left; }
+            .transaction-item p { font-size: 14px; flex-direction: column; text-align: left; }
+            .transaction-item span.label, .transaction-item span.value { text-align: left; }
             .error { font-size: 24px; }
             .loading { font-size: 20px; }
             .back-btn { padding: 10px 20px; font-size: 16px; }
@@ -183,7 +203,7 @@
 <body>
     <div id="particles-js"></div>
     <div class="container">
-        <h1>Tra cứu giao dịch TON</h1>
+        <h1>Lịch sử P2P TON</h1>
         <div id="result"></div>
         <button class="back-btn" onclick="window.Telegram.WebApp.close()">Quay lại</button>
     </div>
@@ -192,11 +212,19 @@
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script>
         const API_KEY = "b6726dd60c0c9d7beae31bafd11b1483133c9515faae94af815e5594963744e9";
+        const ADMIN_WALLET = "UQAsZfruadwz81tvZaRQtWJ6FlxY7aGOVl9V4dGxtGtN1V36";
         const resultDiv = document.getElementById("result");
 
         // Hàm định dạng số
         function formatNumber(num) {
             return num.toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+        }
+
+        // Hàm định dạng thời gian
+        function formatTime(utime) {
+            return new Date(utime * 1000).toLocaleString("vi-VN", {
+                hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'
+            });
         }
 
         // Hàm fetch với retry
@@ -213,20 +241,11 @@
             }
         }
 
-        // Kiểm tra giao dịch TON
-        async function fetchTransaction() {
-            resultDiv.innerHTML = `<div class="loading"><div class="spinner"></div><span>Đang kiểm tra giao dịch...</span></div>`;
-            const urlParams = new URLSearchParams(window.location.search);
-            const wallet = urlParams.get("wallet");
-            const memoToCheck = urlParams.get("memo");
-
-            if (!wallet || !memoToCheck) {
-                resultDiv.innerHTML = `<p class="error">404 - Dữ liệu không hợp lệ!</p>`;
-                return;
-            }
-
+        // Kiểm tra lịch sử P2P
+        async function fetchTransactionHistory() {
+            resultDiv.innerHTML = `<div class="loading"><div class="spinner"></div><span>Đang tải lịch sử giao dịch...</span></div>`;
             try {
-                const url = `https://toncenter.com/api/v2/getTransactions?address=${wallet}&limit=10&api_key=${API_KEY}`;
+                const url = `https://toncenter.com/api/v2/getTransactions?address=${ADMIN_WALLET}&limit=50&api_key=${API_KEY}`;
                 const data = await fetchWithRetry(url);
 
                 if (!data.result || data.result.length === 0) {
@@ -234,35 +253,31 @@
                     return;
                 }
 
-                const matchingTx = data.result.find(tx => {
-                    const memo = (tx.in_msg.message || "").trim();
-                    return tx.in_msg.destination === wallet && memo === memoToCheck;
+                let historyHTML = '<div class="transaction-list">';
+                data.result.forEach(tx => {
+                    const amount = parseInt(tx.in_msg.value || 0) / 10**9;
+                    if (amount > 0) {  // Chỉ hiển thị giao dịch nhận TON
+                        const txData = {
+                            TxID: tx.transaction_id.hash.slice(0, 8) + "...",
+                            Amount: formatNumber(amount) + " TON",
+                            Sender: tx.in_msg.source.slice(0, 8) + "...",
+                            Memo: tx.in_msg.message || "Không có",
+                            Time: formatTime(tx.utime)
+                        };
+                        historyHTML += `
+                            <div class="transaction-item">
+                                <p><span class="label">TxID:</span> <span class="value">${txData.TxID}</span></p>
+                                <p><span class="label">Số TON:</span> <span class="value">${txData.Amount}</span></p>
+                                <p><span class="label">Người gửi:</span> <span class="value">${txData.Sender}</span></p>
+                                <p><span class="label">Ghi chú:</span> <span class="value">${txData.Memo}</span></p>
+                                <p><span class="label">Thời gian:</span> <span class="value">${txData.Time}</span></p>
+                            </div>
+                        `;
+                    }
                 });
+                historyHTML += '</div>';
 
-                if (!matchingTx) {
-                    resultDiv.innerHTML = `<p class="error">404 - Không tìm thấy giao dịch với mã nạp "${memoToCheck}"!</p>`;
-                    return;
-                }
-
-                const txData = {
-                    TxID: matchingTx.transaction_id.hash.slice(0, 8) + "...",
-                    Amount: formatNumber(parseInt(matchingTx.in_msg.value) / 10**9) + " TON",
-                    Sender: matchingTx.in_msg.source.slice(0, 8) + "...",
-                    Memo: matchingTx.in_msg.message || "Không có",
-                    Time: new Date(matchingTx.utime * 1000).toLocaleString("vi-VN", {
-                        hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'
-                    })
-                };
-
-                resultDiv.innerHTML = `
-                    <div class="transaction-box">
-                        <p><span class="label">TxID:</span> <span class="value">${txData.TxID}</span></p>
-                        <p><span class="label">Số TON:</span> <span class="value">${txData.Amount}</span></p>
-                        <p><span class="label">Người gửi:</span> <span class="value">${txData.Sender}</span></p>
-                        <p><span class="label">Ghi chú:</span> <span class="value">${txData.Memo}</span></p>
-                        <p><span class="label">Thời gian:</span> <span class="value">${txData.Time}</span></p>
-                    </div>
-                `;
+                resultDiv.innerHTML = historyHTML;
             } catch (error) {
                 resultDiv.innerHTML = `<p class="error">404 - Lỗi: ${error.message}</p>`;
                 console.error("Fetch error:", error);
@@ -290,7 +305,7 @@
 
         // Tự động chạy
         window.onload = () => {
-            fetchTransaction();
+            fetchTransactionHistory();
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
         };
