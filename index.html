@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra cứu giao dịch TON - Treeng</title>
+    <title>Tra cứu giao dịch TON - Treeng Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* Reset mặc định */
@@ -16,7 +16,7 @@
 
         /* Body và nền */
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3b6ca4 100%);
+            background: linear-gradient(145deg, #1a2a6c, #b21f1f, #fdbb2d);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -24,105 +24,159 @@
             overflow-x: hidden;
             color: #fff;
             position: relative;
+            animation: bgShift 15s infinite linear;
+        }
+
+        @keyframes bgShift {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
         }
 
         /* Container chính */
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 90%;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            max-width: 700px;
+            width: 95%;
             text-align: center;
             position: relative;
-            animation: fadeIn 0.8s ease-in-out;
-            z-index: 1;
+            animation: fadeIn 1s ease-in-out;
+            z-index: 2;
+            overflow: hidden;
+            border: 2px solid #007bff;
         }
 
-        /* Hiệu ứng fadeIn */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         /* Tiêu đề */
         h1 {
-            font-size: 32px;
+            font-size: 36px;
             color: #007bff;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 3px;
+            font-weight: 800;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            width: 50px;
+            height: 3px;
+            background: #007bff;
+            transform: translateX(-50%);
+            border-radius: 2px;
         }
 
         /* Box giao dịch */
         .transaction-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 20px;
             text-align: left;
-            margin-top: 30px;
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-            animation: slideIn 0.5s ease-out;
+            margin-top: 40px;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.7s ease-out;
+            position: relative;
+            border-left: 5px solid #007bff;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .transaction-box p {
-            font-size: 16px;
-            line-height: 1.8;
+            font-size: 18px;
+            line-height: 2;
             color: #333;
-            margin: 10px 0;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
         }
 
-        .transaction-box span {
-            font-weight: 600;
+        .transaction-box p:hover {
+            background: rgba(0, 123, 255, 0.1);
+            padding-left: 10px;
+            border-radius: 5px;
+        }
+
+        .transaction-box span.label {
+            font-weight: 700;
             color: #007bff;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1;
+        }
+
+        .transaction-box span.value {
+            font-weight: 500;
+            color: #555;
+            flex: 2;
+            text-align: right;
         }
 
         /* Thông báo lỗi */
         .error {
-            font-size: 28px;
+            font-size: 32px;
             color: #dc3545;
-            font-weight: 700;
-            margin: 20px 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            animation: shake 0.5s ease-in-out;
+            font-weight: 800;
+            margin: 30px 0;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+            animation: pulse 1s infinite;
+            position: relative;
         }
 
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .error::before {
+            content: '⚠️';
+            position: absolute;
+            left: -40px;
+            font-size: 40px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         /* Trạng thái loading */
         .loading {
-            font-size: 20px;
+            font-size: 24px;
             color: #28a745;
             font-style: italic;
-            margin: 20px 0;
+            margin: 30px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid #28a745;
-            border-top: 3px solid transparent;
+            width: 30px;
+            height: 30px;
+            border: 4px solid #28a745;
+            border-top: 4px solid transparent;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
@@ -132,32 +186,36 @@
         /* Footer */
         .footer {
             position: fixed;
-            bottom: 15px;
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-            letter-spacing: 1px;
+            bottom: 20px;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1.5px;
             z-index: 1;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
         }
 
-        /* Nút quay lại (nếu cần) */
+        /* Nút quay lại */
         .back-btn {
-            background: #007bff;
+            background: linear-gradient(90deg, #007bff, #00d4ff);
             color: white;
-            padding: 12px 25px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.3s ease;
+            margin-top: 30px;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .back-btn:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(90deg, #0056b3, #00b4cc);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
         /* Hiệu ứng nền động */
@@ -173,100 +231,176 @@
 
         .shape {
             position: absolute;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
-            animation: float 15s infinite ease-in-out;
+            animation: float 20s infinite ease-in-out;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         .shape:nth-child(1) {
-            width: 100px;
-            height: 100px;
-            top: 10%;
-            left: 15%;
+            width: 120px;
+            height: 120px;
+            top: 15%;
+            left: 10%;
             animation-delay: 0s;
         }
 
         .shape:nth-child(2) {
-            width: 150px;
-            height: 150px;
-            top: 60%;
-            left: 70%;
+            width: 180px;
+            height: 180px;
+            top: 65%;
+            left: 75%;
             animation-delay: 5s;
         }
 
         .shape:nth-child(3) {
-            width: 80px;
-            height: 80px;
-            top: 40%;
-            left: 30%;
+            width: 90px;
+            height: 90px;
+            top: 45%;
+            left: 25%;
             animation-delay: 10s;
         }
 
+        .shape:nth-child(4) {
+            width: 150px;
+            height: 150px;
+            top: 20%;
+            left: 60%;
+            animation-delay: 15s;
+        }
+
         @keyframes float {
-            0% { transform: translateY(0) translateX(0); opacity: 0.5; }
-            50% { transform: translateY(-50px) translateX(20px); opacity: 0.8; }
-            100% { transform: translateY(0) translateX(0); opacity: 0.5; }
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            50% { transform: translateY(-60px) translateX(30px); opacity: 0.9; }
+            100% { transform: translateY(0) translateX(0); opacity: 0.6; }
         }
 
         /* Responsive design */
         @media (max-width: 600px) {
             .container {
-                padding: 20px;
-                width: 95%;
+                padding: 30px;
+                width: 98%;
             }
             h1 {
-                font-size: 24px;
+                font-size: 28px;
             }
             .transaction-box {
-                padding: 15px;
+                padding: 20px;
             }
             .transaction-box p {
-                font-size: 14px;
+                font-size: 16px;
+                flex-direction: column;
+                text-align: left;
+            }
+            .transaction-box span.label, .transaction-box span.value {
+                flex: none;
+                text-align: left;
             }
             .error {
-                font-size: 22px;
+                font-size: 24px;
             }
             .loading {
-                font-size: 16px;
+                font-size: 20px;
             }
             .back-btn {
-                padding: 10px 20px;
-                font-size: 14px;
+                padding: 12px 25px;
+                font-size: 16px;
             }
             .footer {
                 font-size: 14px;
+                padding: 5px 10px;
             }
         }
 
-        /* Thêm padding cho nội dung dài */
+        /* Scrollbar tùy chỉnh */
         .transaction-box {
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
         }
 
-        /* Scrollbar tùy chỉnh */
         .transaction-box::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
 
         .transaction-box::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #e9ecef;
             border-radius: 10px;
         }
 
         .transaction-box::-webkit-scrollbar-thumb {
             background: #007bff;
             border-radius: 10px;
+            transition: background 0.3s;
         }
 
         .transaction-box::-webkit-scrollbar-thumb:hover {
             background: #0056b3;
+        }
+
+        /* Hiệu ứng viền container */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            filter: blur(10px);
+            z-index: -1;
+            animation: glow 5s infinite;
+        }
+
+        @keyframes glow {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Thêm hiệu ứng hover cho text */
+        .transaction-box p span.value {
+            transition: color 0.3s ease;
+        }
+
+        .transaction-box p:hover span.value {
+            color: #007bff;
+        }
+
+        /* Cải thiện giao diện loading */
+        .loading span {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Thêm viền động cho nút */
+        .back-btn::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 33px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .back-btn:hover::after {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <!-- Hiệu ứng nền động -->
     <div class="background-shapes">
+        <div class="shape"></div>
         <div class="shape"></div>
         <div class="shape"></div>
         <div class="shape"></div>
@@ -280,32 +414,31 @@
     </div>
 
     <!-- Footer -->
-    <div class="footer">©Treeng 2025 - All Rights Reserved</div>
+    <div class="footer">©Treeng Premium 2025 - Designed with 💖</div>
 
     <script>
         const API_KEY = "b6726dd60c0c9d7beae31bafd11b1483133c9515faae94af815e5594963744e9";
         const resultDiv = document.getElementById("result");
 
-        // Hàm định dạng số với dấu chấm thập phân
+        // Hàm định dạng số
         function formatNumber(num) {
             return num.toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
         }
 
-        // Hàm kiểm tra giao dịch TON
+        // Hàm kiểm tra giao dịch TON bằng memo
         async function fetchTransaction() {
             resultDiv.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    Đang kiểm tra giao dịch...
+                    <span>Đang kiểm tra giao dịch...</span>
                 </div>
             `;
 
-            // Lấy tham số từ URL
             const urlParams = new URLSearchParams(window.location.search);
             const wallet = urlParams.get("wallet");
-            const amountToCheck = parseFloat(urlParams.get("amount"));
+            const memoToCheck = urlParams.get("memo");
 
-            if (!wallet || isNaN(amountToCheck)) {
+            if (!wallet || !memoToCheck) {
                 resultDiv.innerHTML = `
                     <p class="error">404 - Dữ liệu không hợp lệ!</p>
                 `;
@@ -329,15 +462,15 @@
                     return;
                 }
 
-                // Tìm giao dịch khớp
+                // Tìm giao dịch khớp với memo
                 const matchingTx = data.result.find(tx => {
-                    const amount = parseInt(tx.in_msg.value) / 10**9;
-                    return tx.in_msg.destination === wallet && Math.abs(amount - amountToCheck) < 0.000001;
+                    const memo = str(tx.in_msg.message || "").strip();
+                    return tx.in_msg.destination === wallet && memo === memoToCheck;
                 });
 
                 if (!matchingTx) {
                     resultDiv.innerHTML = `
-                        <p class="error">404 - Không tìm thấy giao dịch ${formatNumber(amountToCheck)} TON!</p>
+                        <p class="error">404 - Không tìm thấy giao dịch với mã nạp "${memoToCheck}"!</p>
                     `;
                     return;
                 }
@@ -355,11 +488,11 @@
 
                 resultDiv.innerHTML = `
                     <div class="transaction-box">
-                        <p><span>TxID:</span> ${txData.TxID}</p>
-                        <p><span>Số TON:</span> ${txData.Amount}</p>
-                        <p><span>Người gửi:</span> ${txData.Sender}</p>
-                        <p><span>Ghi chú:</span> ${txData.Memo}</p>
-                        <p><span>Thời gian:</span> ${txData.Time}</p>
+                        <p><span class="label">TxID:</span> <span class="value">${txData.TxID}</span></p>
+                        <p><span class="label">Số TON:</span> <span class="value">${txData.Amount}</span></p>
+                        <p><span class="label">Người gửi:</span> <span class="value">${txData.Sender}</span></p>
+                        <p><span class="label">Ghi chú:</span> <span class="value">${txData.Memo}</span></p>
+                        <p><span class="label">Thời gian:</span> <span class="value">${txData.Time}</span></p>
                     </div>
                 `;
             } catch (error) {
@@ -373,15 +506,9 @@
         // Tự động chạy khi tải trang
         window.onload = () => {
             fetchTransaction();
-            // Tích hợp Telegram Web App
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
         };
-
-        // Xử lý sự kiện nút quay lại
-        document.querySelector('.back-btn').addEventListener('click', () => {
-            window.Telegram.WebApp.close();
-        });
     </script>
 </body>
 </html>
