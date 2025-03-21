@@ -464,7 +464,7 @@
 
                 // Tìm giao dịch khớp với memo
                 const matchingTx = data.result.find(tx => {
-                    const memo = str(tx.in_msg.message || "").strip();
+                    const memo = (tx.in_msg.message || "").trim();
                     return tx.in_msg.destination === wallet && memo === memoToCheck;
                 });
 
@@ -509,6 +509,11 @@
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
         };
+
+        // Xử lý sự kiện nút quay lại
+        document.querySelector('.back-btn').addEventListener('click', () => {
+            window.Telegram.WebApp.close();
+        });
     </script>
 </body>
 </html>
